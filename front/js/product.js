@@ -1,14 +1,45 @@
 // Récupération de l'URL de chaques id
-const produit = window.location.search;
-const urlParams = new URLSearchParams(produit);
+const url = window.location.search;
+const urlParams = new URLSearchParams(url);
 const id = urlParams.get("id");
 
 // Récupération des éléments HTML
-let imgProduct = document.querySelector(".item__img");
-let nameProduct = document.getElementById("title");
-let priceProduct = document.getElementById("price");
-let descriptionProduct = document.getElementById("description");
-let colorProduct = document.getElementById("colors");
+const imgProductElt = document.querySelector(".item__img");
+const nameProductElt = document.getElementById("title");
+const priceProductElt = document.getElementById("price");
+const descriptionProductElt = document.getElementById("description");
+const colorProductElt = document.getElementById("colors");
+const quantityProductElt = document.getElementById("quantity")
+const btnAddToCartElt = document.getElementById("addToCart");
+
+ 
+/**
+ * Fonction pour le choix des couleurs de chaques items
+ * @param {string} product - choix des couleurs
+ */
+function getColors(product) {
+    // Pour chaques couleurs de product.colors
+    for( let color of product.colors) {
+        const choiceElt = document.createElement('option');
+        // Ajout de la valeur de l'option
+        choiceElt.value = `${color}`
+        // Ajout du texte de l'option
+        choiceElt.innerText = `${color}`
+        colorProductElt.appendChild(choiceElt);
+    }
+}
+
+/**
+ * Fonction pour ajouter les éléments de manière dynamique dans le HTML
+ * @param {string} product - Ajout des produit dans les éléments HTML
+ */
+function displayProduct(product) {
+    imgProductElt.innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}"></img>`;
+    nameProductElt.innerHTML = `<h1 id="title">${product.name}</h1>`;
+    priceProductElt.innerHTML = `<span id="price">${product.price}</span>`;
+    descriptionProductElt.innerHTML = `<p id="description">${product.description}</p>`;
+    getColors(product);
+}
 
 // Récupérations des éléments PAR ID avec la méthode Fetch via l'API
 function getProduct() {
@@ -18,30 +49,8 @@ function getProduct() {
     .catch(() => console.log("Une erreur est survenue !"))
     
 }
+
+// On apelle la fonction
 getProduct();
-
-// Fonction pour le choix des couleurs de chaques items
-function getColors(product) {
-    // Pour chaques couleurs de product.colors
-    for( let color of product.colors) {
-        const choice = document.createElement('option');
-        // Ajout de la valeur de l'option
-        choice.value = `${color}`
-        // Ajout du texte de l'option
-        choice.innerText = `${color}`
-        colorProduct.appendChild(choice);
-    }
-}
-
-// Fonction pour ajouter les éléments de manière dynamique dans le HTML
-function displayProduct(product) {
-    imgProduct.innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}"></img>`;
-    nameProduct.innerHTML = `<h1 id="title">${product.name}</h1>`;
-    priceProduct.innerHTML = `<span id="price">${product.price}</span>`;
-    descriptionProduct.innerHTML = `<p id="description">${product.description}</p>`;
-    getColors(product);
-}
-
-
 
 
