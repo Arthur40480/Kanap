@@ -39,6 +39,7 @@ function displayProduct(product) {
     nameProductElt.innerHTML = `<h1 id="title">${product.name}</h1>`;
     priceProductElt.innerHTML = `<span id="price">${product.price}</span>`;
     descriptionProductElt.innerHTML = `<p id="description">${product.description}</p>`;
+    console.log(product.imageUrl)
     getColors(product);
 };
 
@@ -55,13 +56,13 @@ getProduct();
 
 // Fonction pour panier incorect
 function invalidOrder(color, quantity) {
-    if( quantity == 0 ) {
+    if( quantity === 0 ) {
         alert("Veuillez choisir une quantité pour cet article")
         return true
     }else if ( quantity > 100 ) {
         alert("La quantité maximum pour cet article est de 100 exemplaires")
         return true
-    }else if ( color == null || color == '' ) {
+    }else if ( color === null || color === '' ) {
         alert(" Veuillez choisir une couleur disponible pour cet article")
         return true
     } 
@@ -69,13 +70,14 @@ function invalidOrder(color, quantity) {
 
 // Fonction pour sauvegarder la commande
 function saveOrder(color, quantity) {
-    const data = {
+    const order = {
         id: id,
         color: color,
         quantity: Number(quantity),
-        price: priceProductElt.innerText
+        price: priceProductElt.innerText,
+        name: nameProductElt.innerText,
     }
-    localStorage.setItem(id, JSON.stringify(data))
+    localStorage.setItem(id, JSON.stringify(order))
 };
 
 //Fonction pour rediriger vers la page du panier
@@ -87,7 +89,7 @@ function redirectToCart() {
 btnAddToCartElt.addEventListener('click', function() {
     let quantity = document.getElementById("quantity").value;
     let color = document.getElementById("colors").value;
-    if (invalidOrder(color, quantity, price) == true) {
+    if (invalidOrder(color, quantity, price) === true) {
         return
     }else{
     saveOrder(color, quantity)
