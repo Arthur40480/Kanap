@@ -39,16 +39,19 @@ function displayProduct(product) {
     nameProductElt.innerHTML = `<h1 id="title">${product.name}</h1>`;
     priceProductElt.innerHTML = `<span id="price">${product.price}</span>`;
     descriptionProductElt.innerHTML = `<p id="description">${product.description}</p>`;
-    console.log(product.imageUrl)
+    const imgProductUrl = product.imageUrl;
+    console.log(imgProductUrl)
     getColors(product);
 };
 
+// const monProduit = getProduct();
+// console.log(monProduit);
 // Récupérations des éléments PAR ID avec la méthode Fetch via l'API
 function getProduct() {
     fetch(`http://localhost:3000/api/products/${id}`)
     .then( response => response.json())
     .then( product => { displayProduct(product) })
-    .catch(() => console.log("Une erreur est survenue !"))   
+    .catch(() => console.log("Une erreur est survenue !"))
 };
 
 // On apelle la fonction
@@ -69,15 +72,16 @@ function invalidOrder(color, quantity) {
 };
 
 // Fonction pour sauvegarder la commande
-function saveOrder(color, quantity) {
+function saveOrder(colorProduct, quantityProduct, idProduct, priceProduct, nameProduct, imgProduct) {
     const order = {
-        id: id,
-        color: color,
-        quantity: Number(quantity),
-        price: priceProductElt.innerText,
-        name: nameProductElt.innerText,
+        id: idProduct,
+        color: colorProduct,
+        quantity: Number(quantityProduct),
+        price: priceProduct,
+        name: nameProduct,
+        image: imgProduct
     }
-    localStorage.setItem(id, JSON.stringify(order))
+    localStorage.setItem("id", JSON.stringify(order))
 };
 
 //Fonction pour rediriger vers la page du panier
@@ -87,12 +91,16 @@ function redirectToCart() {
 
 // Evènement pour écouter lors d'un clique
 btnAddToCartElt.addEventListener('click', function() {
-    let quantity = document.getElementById("quantity").value;
-    let color = document.getElementById("colors").value;
-    if (invalidOrder(color, quantity, price) === true) {
+    const colorProduct = document.getElementById("colors").value;
+    const quantityProduct = document.getElementById("quantity").value;
+    const idProduct = id;
+    const priceProduct = priceProductElt.innerText;
+    const nameProduct = nameProductElt.innerText;
+    const imgProduct = imgProductElt.innerHTML;
+    if (invalidOrder(colorProduct, quantityProduct) === true) {
         return
     }else{
-    saveOrder(color, quantity)
-    redirectToCart()   
+    saveOrder(colorProduct, quantityProduct, idProduct, priceProduct, nameProduct, imgProduct)
+    redirectToCart()  
 }});
 
