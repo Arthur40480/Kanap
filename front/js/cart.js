@@ -1,3 +1,4 @@
+//Création de tableau qui représente le contenue du panier actuel
 const cart = [];
 
 
@@ -10,7 +11,7 @@ function retrieveLocalStorageItems() {
         const item = localStorage.getItem(localStorage.key(x))
         const itemObject = JSON.parse(item)
         cart.push(itemObject)
-        console.log(cart)
+        
     }
 }
 
@@ -21,7 +22,6 @@ function displayArticleElt(item) {
     fetch('http://localhost:3000/api/products')
         .then(response => response.json())
         .then(product => {
-            mesProduits = product;
 
             for(let i = 0; i < cart.length; i++){
                 let colorCart = cart[i].color;
@@ -30,8 +30,7 @@ function displayArticleElt(item) {
 
                 const dataCart = product.find((element) => element._id === idCart);
                 const priceItemCart = dataCart.price
-                
-
+              
     // Création de la balise article class= "cart__item"
     let articleElt = document.createElement("article");
     articleElt.classList.add("cart__item");
@@ -88,15 +87,32 @@ function displayArticleElt(item) {
 
     // Création de la balise <p> pour la quantité de l'article
     let quantityProductElt = document.createElement("p");
-    quantityProductElt.innerText = "Qté : " + quantityCart;
+    quantityProductElt.innerText = "Qté : " + item.quantity;
     divQuantityElt.appendChild(quantityProductElt);
 
+    // Création de l'input permettant de modifier la quantité de l'article dans le panier
+    let inputQuantityElt = document.createElement("input");
+    inputQuantityElt.classList.add("itemQuantity");
+    inputQuantityElt.type = "number";
+    inputQuantityElt.name = "itemQuantity";
+    inputQuantityElt.min = 1;
+    inputQuantityElt.max = 100;
+    inputQuantityElt.value = item.quantity;
+    divQuantityElt.appendChild(inputQuantityElt);
 
+    // Création de la div class="cart__item__content__settings__delete" pour supprimer l'article du panier
+    let divDeleteElt = document.createElement("div");
+    divDeleteElt.classList.add("cart__item__content__settings__delete");
+    divSettingsElt.appendChild(divDeleteElt);
 
-    
+    // Création de la balise <p> class="deleteItem"
+    let deleteItemElt = document.createElement("p");
+    deleteItemElt.classList.add("deleteItem");
+    deleteItemElt.innerText = "Supprimer"
+    divDeleteElt.appendChild(deleteItemElt);
         }
     })
 }
 
 
-console.log(mesProduits)
+
