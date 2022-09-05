@@ -120,3 +120,15 @@ function totalItemsInCart() {
 }
 totalItemsInCart();
 
+//Fonction pour calculer le prix total du panier
+function totalCartPrice() {
+    let total = 0
+    const totalPriceElt = document.getElementById("totalPrice");
+    cart.forEach((item) => {        //Fonction pour chaques objet d'un tableau
+        const itemPrice = item.price * item.quantity
+        total += itemPrice
+    })
+    console.log(total)
+    totalPriceElt.innerText = Number(total)
+}
+totalCartPrice();
