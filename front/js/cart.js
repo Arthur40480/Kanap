@@ -1,21 +1,18 @@
 //Création de tableau qui représente le contenue du panier actuel
 const cart = [];
 
-
 retrieveLocalStorageItems();
 cart.forEach((item) => displayArticleElt(item));
 
+// Fonction pour récupérer les items du localstorage pour les mettres dans le panier
 function retrieveLocalStorageItems() {
     const numberOfItems = localStorage.length;
     for( x = 0; x < numberOfItems; x++) {
         const item = localStorage.getItem(localStorage.key(x))
         const itemObject = JSON.parse(item)
         cart.push(itemObject)
-        
     }
 }
-
-
 
 // Fonction afficher les éléments de chaques article dans le panier
 function displayArticleElt(item) {
@@ -87,7 +84,7 @@ function displayArticleElt(item) {
 
     // Création de la balise <p> pour la quantité de l'article
     let quantityProductElt = document.createElement("p");
-    quantityProductElt.innerText = "Qté : " + item.quantity;
+    quantityProductElt.innerText = "Qté : ";
     divQuantityElt.appendChild(quantityProductElt);
 
     // Création de l'input permettant de modifier la quantité de l'article dans le panier
@@ -108,11 +105,18 @@ function displayArticleElt(item) {
     // Création de la balise <p> class="deleteItem"
     let deleteItemElt = document.createElement("p");
     deleteItemElt.classList.add("deleteItem");
-    deleteItemElt.innerText = "Supprimer"
+    deleteItemElt.innerText = "Supprimer";
     divDeleteElt.appendChild(deleteItemElt);
         }
     })
 }
-
-
+//Fonction pour calculer le nombre total d'article dans le panier
+function totalItemsInCart() {
+    let itemQuantity = 0
+    const totalItemsInCartElt = document.getElementById("totalQuantity")
+    //.reduce fonction "accumulatrice" => pour traiter chaques valeurs d'un liste afin de le réduire à une seule valeur
+    const totalQuantity = cart.reduce((total, item) => total + item.quantity, itemQuantity)
+    totalItemsInCartElt.textContent = totalQuantity   
+}
+totalItemsInCart();
 
