@@ -47,7 +47,7 @@ fetch(`http://localhost:3000/api/products/${idItem}`)
         }
 
         displayProduct(); // On apelle la fonction
-        
+
         /**
          * //Fonction pour que le client valide un panier correct
          * @param {*string} color 

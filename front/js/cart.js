@@ -15,7 +15,10 @@ function retrieveLocalStorageItems() {
 function totalItemsInCart() {
     let itemQuantity = 0
     const totalItemsInCartElt = document.getElementById("totalQuantity")
-    //.reduce fonction "accumulatrice" => pour traiter chaques valeurs d'un liste afin de le réduire à une seule
+    /**
+     * .reduce fonction "accumulatrice" => pour traiter chaques valeurs d'une liste afin de le réduire à une seule.
+     * cart.reduce((previousValue, currentValue))
+     */
     const totalQuantity = cart.reduce((total, item) => total + item.quantity, itemQuantity)
     totalItemsInCartElt.textContent = totalQuantity   
 };
@@ -32,9 +35,36 @@ function totalCartPrice() {
 };
 
 /**
+ * Fonction pour supprimer l'élément du LocalStorage ainsi que sont "article" dans le DOM
+ * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article
+ */
+function removeItemFromLocalStorage(item) {
+    localStorage.removeItem(item.id)
+    const itemArticleToDeleteElt = document.querySelector(
+        `article[data-id="${item.id}"]`)
+        console.log("Deleting article", itemArticleToDeleteElt)
+        itemArticleToDeleteElt.remove();
+};
+
+/**
+ * Fonction pour supprimer un élément du panier => cart[]
+ * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article
+ */
+function removeItemFromCart(item) {
+    const itemToDelete = cart.find(product => product.id === item.id)
+    /**Utilisation de la méthode ".splice( 0(indice à partir duquel commencer à changer le tableau), nbASupprimer, élem1 à ajouter, etc ...)"
+     * Elle modifie le contenu d'un  tableau en retirant et/ou ajoutant de nouveaux éléments. */
+    const itemToDeleteFromCart = cart.splice(itemToDelete, 1)
+    totalCartPrice(); // => On rapelle les deux fonction pour pouvoir recalculer le prix et la quantité total lors de l'evènement
+    totalItemsInCart();
+    removeItemFromLocalStorage(item);
+    console.log(cart)
+}
+
+/**
  * Fonction permettant la mise à jour du prix total et de la quantité total lors de l'evènement
  * @param {*string} id  => Ici on viens chercher l'id de l'item à qui l'on veut modifier la quantité
- * @param {*number.value} updateQuantity => Ici on viens récupérer la valeur de l'input "inputQuantityElt"
+ * @param {*number.value} updateQuantity => Ici on viens récupérer la valeur de l'input "inputQuantityElt" qui est un nombre
  * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
  function updateQuantityAndPrice(id, updateQuantity, item) {
@@ -47,7 +77,10 @@ function totalCartPrice() {
     };
 
 
-// Fonction afficher les éléments de chaques article dans le panier
+/**
+ * Fonction afficher les éléments de chaques article dans le panier
+ * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ */
 function displayArticleElt(item) {
 
     // Création de la balise article class= "cart__item"
@@ -130,14 +163,14 @@ function displayArticleElt(item) {
     deleteItemElt.classList.add("deleteItem");
     deleteItemElt.innerText = "Supprimer";
     divDeleteElt.appendChild(deleteItemElt);
-
+    deleteItemElt.addEventListener('click', () => removeItemFromCart(item));
     totalItemsInCart();
     totalCartPrice();
 };
 
 retrieveLocalStorageItems(); // On apelle la fonction
 
-/**Utilisation de la méthode .forEach pour permettre d'exécuterpermet d'exécuter 
+/**Utilisation de la méthode .forEach pour permettre d'exécuter
  * la fonction displayArticleElt sur chaque élément du tableau => chaque "item" de mon tableau "cart" */
 cart.forEach((item) => displayArticleElt(item));
 
