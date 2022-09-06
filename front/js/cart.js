@@ -1,4 +1,4 @@
-//Création de tableau qui représente le contenue du panier actuel
+//Création de l'array (tableau) qui représente le contenue du panier actuel
 const cart = [];
 
 // Fonction pour récupérer les items du localstorage pour les mettres dans le panier
@@ -9,7 +9,7 @@ function retrieveLocalStorageItems() {
         const itemObject = JSON.parse(item)
         cart.push(itemObject)
     }
-}
+};
 
 //Fonction pour calculer le nombre total d'article dans le panier
 function totalItemsInCart() {
@@ -18,8 +18,7 @@ function totalItemsInCart() {
     //.reduce fonction "accumulatrice" => pour traiter chaques valeurs d'un liste afin de le réduire à une seule
     const totalQuantity = cart.reduce((total, item) => total + item.quantity, itemQuantity)
     totalItemsInCartElt.textContent = totalQuantity   
-}
-
+};
 
 //Fonction pour calculer le prix total du panier
 function totalCartPrice() {
@@ -30,35 +29,26 @@ function totalCartPrice() {
         total += itemPrice
     })
     totalPriceElt.innerText = Number(total)
-}
+};
 
 /**
  * Fonction permettant la mise à jour du prix total et de la quantité total lors de l'evènement
  * @param {*string} id  => Ici on viens chercher l'id de l'item à qui l'on veut modifier la quantité
  * @param {*number.value} updateQuantity => Ici on viens récupérer la valeur de l'input "inputQuantityElt"
+ * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
- function updateQuantityAndPrice(id, updateQuantity) {
-    const itemToUpdate = cart.find(item => item.id === id)
-    itemToUpdate.quantity = Number(updateQuantity)
+ function updateQuantityAndPrice(id, updateQuantity, item) {
+    const itemToUpdate = cart.find(item => item.id === id);
+    itemToUpdate.quantity = Number(updateQuantity);
+    const newItemToSave = JSON.stringify(item);
+    localStorage.setItem(item.id, newItemToSave);
     totalItemsInCart(); // => On rapelle les deux fonction pour pouvoir recalculer le prix et la quantité total lors de l'evènement
     totalCartPrice();
-    }
+    };
 
 
 // Fonction afficher les éléments de chaques article dans le panier
 function displayArticleElt(item) {
-    fetch('http://localhost:3000/api/products')
-        .then(response => response.json())
-        .then(product => {
-
-            for(let i = 0; i < cart.length; i++){
-                let colorItemCart = cart[i].color;
-                let idItemCart = cart[i].id;
-                let quantityItemCart = cart[i].quantity;
-                let imgItemCart = cart[i].imageUrl
-
-                const dataCart = product.find(element => element._id === idItemCart);
-                const priceItemCart = dataCart.price
 
     // Création de la balise article class= "cart__item"
     let articleElt = document.createElement("article");
@@ -75,8 +65,8 @@ function displayArticleElt(item) {
 
     //Création de l'image du produit
     let imgElt = document.createElement("img");
-    imgElt.src = dataCart.imageUrl
-    imgElt.alt = dataCart.altTxt
+    imgElt.src = item.imageUrl
+    imgElt.alt = item.altTxt
     divImgElt.appendChild(imgElt);
 
     // Création de la div class= "cart__item__content"
@@ -96,7 +86,7 @@ function displayArticleElt(item) {
 
     // Création de la balise <p> pour la couleur de l'article           
     let colorProductElt = document.createElement("p");
-    colorProductElt.innerText = colorItemCart; 
+    colorProductElt.innerText = item.color; 
     divDescriptionElt.appendChild(colorProductElt);
 
     // Création de la balise <p> pour le prix de l'article          
@@ -128,7 +118,7 @@ function displayArticleElt(item) {
     inputQuantityElt.max = 100;
     inputQuantityElt.value = Number(item.quantity);
     divQuantityElt.appendChild(inputQuantityElt);
-    inputQuantityElt.addEventListener('input', () => updateQuantityAndPrice(item.id, inputQuantityElt.value))
+    inputQuantityElt.addEventListener('input', () => updateQuantityAndPrice(item.id, inputQuantityElt.value, item))
 
     // Création de la div class="cart__item__content__settings__delete" pour supprimer l'article du panier
     let divDeleteElt = document.createElement("div");
@@ -140,12 +130,15 @@ function displayArticleElt(item) {
     deleteItemElt.classList.add("deleteItem");
     deleteItemElt.innerText = "Supprimer";
     divDeleteElt.appendChild(deleteItemElt);
-        }
-        
-    })
-}
 
-retrieveLocalStorageItems();
+    totalItemsInCart();
+    totalCartPrice();
+};
+
+retrieveLocalStorageItems(); // On apelle la fonction
+
+/**Utilisation de la méthode .forEach pour permettre d'exécuterpermet d'exécuter 
+ * la fonction displayArticleElt sur chaque élément du tableau => chaque "item" de mon tableau "cart" */
 cart.forEach((item) => displayArticleElt(item));
 
 
