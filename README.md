@@ -1,4 +1,5 @@
-"!https://api.codeclimate.com/v1/badges/219c9842888e5667aff4/maintainability!":https://codeclimate.com/github/Arthur40480/Kanap/maintainability
+[![forthebadge](https://forthebadge.com/images/badges/made-with-javascript.svg)](https://forthebadge.com)
+[![Maintainability](https://api.codeclimate.com/v1/badges/219c9842888e5667aff4/maintainability)](https://codeclimate.com/github/Arthur40480/Kanap/maintainability)
 
 # Kanap #
 
