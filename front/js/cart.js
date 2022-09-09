@@ -7,8 +7,57 @@ const inputLastNameElt = document.getElementById("lastName");
 const inputAdressElt = document.getElementById("address");
 const inputCityElt = document.getElementById("city");
 const inputMailElt = document.getElementById("email");
+const btnOrderElt = document.querySelector('#order');
 
-console.log(inputMailElt)
+btnOrderElt.addEventListener('click', (e) => submitForm(e))
+
+//Création de la fonction pour utiliser la méthode POST et envoyer les données des clients au serveur
+function submitForm(e) {
+e.preventDefault()
+if(cart.length === 0) { 
+    alert(" Veuillez remplir votre panier car celui-ci est vide !")
+    return
+}
+const order = makeBodyRequest()
+//Méthode Post
+fetch('http://localhost:3000/api/products/order', {
+    method: "POST",
+    body: JSON.stringify(order),
+    headers: {
+        "Content-Type": "application/json",
+    }
+})
+    .then((res) => res.json())
+    .then((data) => console.log(data))
+}
+
+//Création de la fonction avec un objet qui contient les informations des clients
+function makeBodyRequest() {
+    const body = {
+        contact:{
+          firstName: inputNameElt.value,
+          lastName: inputLastNameElt.value,
+          address: inputAdressElt.value,
+          city: inputCityElt.value,
+          email: inputMailElt.value 
+        },
+        products: getIdsFromCache()
+    };
+    return body
+}
+
+function getIdsFromCache() {
+    const numberOfProducts = localStorage.length
+    const ids = []
+    for (let i = 0; i < numberOfProducts; i++) {
+      const key = localStorage.key(i)
+      const id = key
+      console.log(key)
+      ids.push(id)
+    }
+    return ids
+}
+
 
 // Fonction pour récupérer les items du localstorage pour les mettres dans le panier
 function retrieveLocalStorageItems() {
@@ -55,6 +104,27 @@ function removeItemFromLocalStorageAndDom(item) {
         itemArticleToDeleteElt.remove()
         alert("Votre produit a bien été supprimé du panier !");
 };
+
+/**
+ * 
+ * @param {*} inputEmail 
+ */ 
+ const validEmail = function(inputEmail) {
+    let emailRegExp = new RegExp("^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$")
+    let testEmail = emailRegExp.test(inputEmail.value);
+    let small = inputEmail.nextElementSibling;
+
+    if (testEmail) {
+        small.innerHTML = 'Adresse valide !'
+    }else{
+        small.innerHTML = 'Adresse non valide !'
+    }
+}
+
+//Evènement pour écouter la modification du champ email
+inputMailElt.addEventListener('change', function() {
+    validEmail(this);
+});
 
 /**
  * Fonction pour supprimer un élément du panier => cart[]
@@ -182,25 +252,4 @@ retrieveLocalStorageItems(); // On apelle la fonction
  * la fonction displayArticleElt sur chaque élément du tableau => chaque "item" de mon tableau "cart" */
  cart.forEach((item) => displayArticleElt(item));
 
-//Evènement pour écouter la modification du champ email
-inputMailElt.addEventListener('change', function() {
-    validEmail(this);
-});
 
-/**
- * 
- * @param {*} inputEmail 
- */ 
-const validEmail = function(inputEmail) {
-    console.log(inputEmail)
-    let emailRegExp = new RegExp("^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$")
-    let testEmail = emailRegExp.test(inputEmail.value);
-    console.log(testEmail)
-    let small = inputEmail.nextElementSibling;
-
-    if (testEmail) {
-        small.innerHTML = 'Adresse valide !'
-    }else{
-        small.innerHTML = 'Adresse non valide !'
-    }
-}
