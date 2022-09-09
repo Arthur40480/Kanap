@@ -90,6 +90,7 @@ fetch(`http://localhost:3000/api/products/${idItem}`)
                 return
             }else{
                 saveOrder();
+                alert(`Votre produit ${product.name} en ${quantityProductElt.value} exemplaire(s) à bien été ajouter a votre panier !`)
                 redirectToCart();
             }
         })
