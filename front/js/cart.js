@@ -127,7 +127,10 @@ function orderRequest() {
         }
     })
         .then((res) => res.json())
-        .then((data) => console.log(data))
+        .then((data) => {
+            localStorage.clear()
+            document.location.href = `confirmation.html?_id=${data.orderId}`
+        })
     }
 
 //Création de la fonction pour utiliser la méthode POST et envoyer les données des clients au serveur
