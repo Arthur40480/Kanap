@@ -9,26 +9,96 @@ const inputCityElt = document.getElementById("city");
 const inputMailElt = document.getElementById("email");
 const btnOrderElt = document.querySelector('#order');
 
-btnOrderElt.addEventListener('click', (e) => submitForm(e))
+//Création des constantes pour les éléments du DOM qui vont accueillir les message d'erreur du formulaire
+const errorFirstNameFormElt = document.getElementById("firstNameErrorMsg");
+const errorLastNameFormElt = document.getElementById("lastNameErrorMsg");
+const errorAddressFormElt = document.getElementById("addressErrorMsg");
+const errorCityFormElt = document.getElementById("cityErrorMsg");
+const errorEmailFormElt = document.getElementById("emailErrorMsg");
 
-//Création de la fonction pour utiliser la méthode POST et envoyer les données des clients au serveur
-function submitForm(e) {
-e.preventDefault()
-if(cart.length === 0) { 
-    alert(" Veuillez remplir votre panier car celui-ci est vide !")
-    return
-}
-const order = makeBodyRequest()
-//Méthode Post
-fetch('http://localhost:3000/api/products/order', {
-    method: "POST",
-    body: JSON.stringify(order),
-    headers: {
-        "Content-Type": "application/json",
+//Création des RegExp " Expression régulière " pour étudier les correspondances de texte des inputs du formulaire
+let emailRegExp = new RegExp("^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$");
+let addressRegExp = new RegExp("^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+");
+let texteRegExp = new RegExp("^[a-zA-Z ,.'-]+$");
+
+//Fonction pour la validation du champ prénom
+function firstNameValid() {
+    if(!texteRegExp.test(inputNameElt.value)) {
+        errorFirstNameFormElt.innerHTML = "Prénom incorrect"
+        return false
+    }else {
+        errorFirstNameFormElt.innerHTML = "Prénom correct"
+        return true
     }
-})
-    .then((res) => res.json())
-    .then((data) => console.log(data))
+}
+
+//Fonction pour la validation du champ prénom
+function lastNameValid() {
+    if(!texteRegExp.test(inputLastNameElt.value)) {
+        errorLastNameFormElt.innerHTML = "Nom incorrect"
+        return false
+    }else {
+        errorLastNameFormElt.innerHTML = "Nom correct"
+        return true
+    }
+}
+
+//Fonction pour la validation du champ prénom
+function addressNameValid() {
+    if(!addressRegExp.test(inputAdressElt.value)) {
+        errorAddressFormElt.innerHTML = "Adresse incorrect"
+        return false
+    }else {
+        errorAddressFormElt.innerHTML = "Adresse correct"
+        return true
+    }
+}
+
+//Fonction pour la validation du champ prénom
+function cityValid() {
+    if(!texteRegExp.test(inputCityElt.value)) {
+        errorCityFormElt.innerHTML = "Nom de Ville incorrect"
+        return false
+    }else {
+        errorCityFormElt.innerHTML = "Nom de Ville correct"
+        return true
+    }
+}
+
+//Fonction pour la validation du champ prénom
+function emailValid() {
+    if(!emailRegExp.test(inputMailElt.value)) {
+        errorEmailFormElt.innerHTML = "Email incorrect"
+        return false
+    }else {
+        errorEmailFormElt.innerHTML = "Email correct"
+        return true
+    }
+}
+
+//Fonction = Si le formulaire et correctement rempli, return true
+function formValid() {
+    if(
+        firstNameValid()=== true &&
+        lastNameValid()=== true &&
+        addressNameValid()=== true &&
+        cityValid() === true &&
+        emailValid() === true
+    ) {
+        return true
+    }
+}
+
+function getIdsFromCache() {
+    const numberOfProducts = localStorage.length
+    const ids = []
+    for (let i = 0; i < numberOfProducts; i++) {
+      const key = localStorage.key(i)
+      const id = key
+      console.log(key)
+      ids.push(id)
+    }
+    return ids
 }
 
 //Création de la fonction avec un objet qui contient les informations des clients
@@ -46,18 +116,32 @@ function makeBodyRequest() {
     return body
 }
 
-function getIdsFromCache() {
-    const numberOfProducts = localStorage.length
-    const ids = []
-    for (let i = 0; i < numberOfProducts; i++) {
-      const key = localStorage.key(i)
-      const id = key
-      console.log(key)
-      ids.push(id)
+function orderRequest() {
+    const order = makeBodyRequest()
+    //Méthode Post
+    fetch('http://localhost:3000/api/products/order', {
+        method: "POST",
+        body: JSON.stringify(order),
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+        .then((res) => res.json())
+        .then((data) => console.log(data))
     }
-    return ids
+
+//Création de la fonction pour utiliser la méthode POST et envoyer les données des clients au serveur
+function submitForm(e) {
+    e.preventDefault()
+    if(cart.length === 0) { 
+        alert(" Veuillez remplir votre panier car celui-ci est vide !")
+        return
+    }else if(formValid()) {
+    orderRequest();
+    }
 }
 
+btnOrderElt.addEventListener('click', (e) => submitForm(e))
 
 // Fonction pour récupérer les items du localstorage pour les mettres dans le panier
 function retrieveLocalStorageItems() {
@@ -104,27 +188,6 @@ function removeItemFromLocalStorageAndDom(item) {
         itemArticleToDeleteElt.remove()
         alert("Votre produit a bien été supprimé du panier !");
 };
-
-/**
- * 
- * @param {*} inputEmail 
- */ 
- const validEmail = function(inputEmail) {
-    let emailRegExp = new RegExp("^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$")
-    let testEmail = emailRegExp.test(inputEmail.value);
-    let small = inputEmail.nextElementSibling;
-
-    if (testEmail) {
-        small.innerHTML = 'Adresse valide !'
-    }else{
-        small.innerHTML = 'Adresse non valide !'
-    }
-}
-
-//Evènement pour écouter la modification du champ email
-inputMailElt.addEventListener('change', function() {
-    validEmail(this);
-});
 
 /**
  * Fonction pour supprimer un élément du panier => cart[]
@@ -251,5 +314,3 @@ retrieveLocalStorageItems(); // On apelle la fonction
 /**Utilisation de la méthode .forEach pour permettre d'exécuter
  * la fonction displayArticleElt sur chaque élément du tableau => chaque "item" de mon tableau "cart" */
  cart.forEach((item) => displayArticleElt(item));
-
-
