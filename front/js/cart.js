@@ -8,6 +8,7 @@ const inputAdressElt = document.getElementById("address");
 const inputCityElt = document.getElementById("city");
 const inputMailElt = document.getElementById("email");
 const btnOrderElt = document.querySelector('#order');
+const sectionCartElt = document.getElementById("cart__items");
 
 //Création des constantes pour les éléments du DOM qui vont accueillir les message d'erreur du formulaire
 const errorFirstNameFormElt = document.getElementById("firstNameErrorMsg");
@@ -89,16 +90,16 @@ function formValid() {
     }
 }
 
+//Fonction permettant de récupérer l'ID des produits séléctionner
 function getIdsFromCache() {
     const numberOfProducts = localStorage.length
-    const ids = []
+    const idsOrder = []
     for (let i = 0; i < numberOfProducts; i++) {
       const key = localStorage.key(i)
       const id = key
-      console.log(key)
-      ids.push(id)
+      idsOrder.push(id)
     }
-    return ids
+    return idsOrder
 }
 
 //Création de la fonction avec un objet qui contient les informations des clients
@@ -116,9 +117,9 @@ function makeBodyRequest() {
     return body
 }
 
+//A l'aide de la méthode POST, on envoie les données du client et l'id des produits à l'API
 function orderRequest() {
     const order = makeBodyRequest()
-    //Méthode Post
     fetch('http://localhost:3000/api/products/order', {
         method: "POST",
         body: JSON.stringify(order),
@@ -144,6 +145,7 @@ function submitForm(e) {
     }
 }
 
+//Evénement sur la bouton "confirmer" du formulaire, au click, on apelle la fonction submitForm
 btnOrderElt.addEventListener('click', (e) => submitForm(e))
 
 // Fonction pour récupérer les items du localstorage pour les mettres dans le panier
@@ -160,10 +162,9 @@ function retrieveLocalStorageItems() {
 function totalItemsInCart() {
     let itemQuantity = 0
     const totalItemsInCartElt = document.getElementById("totalQuantity")
-    /**
-     * .reduce fonction "accumulatrice" => pour traiter chaques valeurs d'une liste afin de le réduire à une seule.
-     * cart.reduce((previousValue, currentValue))
-     */
+    
+    /**.reduce fonction "accumulatrice" => pour traiter chaques valeurs d'une liste afin de le réduire à une seule.
+    cart.reduce((previousValue, currentValue))*/ 
     const totalQuantity = cart.reduce((total, item) => total + item.quantity, itemQuantity)
     totalItemsInCartElt.textContent = totalQuantity   
 };
@@ -178,6 +179,21 @@ function totalCartPrice() {
     })
     totalPriceElt.innerText = Number(total)
 };
+
+/**
+ * Fonction permettant la mise à jour du prix total et de la quantité total lors de l'evènement
+ * @param {*string} id  => Ici on viens chercher l'id de l'item à qui l'on veut modifier la quantité
+ * @param {*number.value} updateQuantity => Ici on viens récupérer la valeur de l'input "inputQuantityElt" qui est un nombre
+ * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ */
+ function updateQuantityAndPrice(id, updateQuantity, item) {
+    const itemToUpdate = cart.find(item => item.id === id);
+    itemToUpdate.quantity = Number(updateQuantity);
+    const newItemToSave = JSON.stringify(item);
+    localStorage.setItem(item.id, newItemToSave);
+    totalItemsInCart(); // => On rapelle les deux fonction pour pouvoir recalculer le prix et la quantité total lors de l'evènement
+    totalCartPrice();
+    };
 
 /**
  * Fonction pour supprimer l'élément du LocalStorage ainsi que sont "article" dans le DOM
@@ -204,112 +220,142 @@ function removeItemFromCart(item) {
     totalCartPrice(); // => On rapelle les deux fonction pour pouvoir recalculer le prix et la quantité total lors de l'evènement
     totalItemsInCart();
     removeItemFromLocalStorageAndDom(item);
-}
+};
 
 /**
- * Fonction permettant la mise à jour du prix total et de la quantité total lors de l'evènement
- * @param {*string} id  => Ici on viens chercher l'id de l'item à qui l'on veut modifier la quantité
- * @param {*number.value} updateQuantity => Ici on viens récupérer la valeur de l'input "inputQuantityElt" qui est un nombre
+ * Fonction afficher les éléments de chaques article dans le panier
  * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
- function updateQuantityAndPrice(id, updateQuantity, item) {
-    const itemToUpdate = cart.find(item => item.id === id);
-    itemToUpdate.quantity = Number(updateQuantity);
-    const newItemToSave = JSON.stringify(item);
-    localStorage.setItem(item.id, newItemToSave);
-    totalItemsInCart(); // => On rapelle les deux fonction pour pouvoir recalculer le prix et la quantité total lors de l'evènement
-    totalCartPrice();
-    };
+ function makeDivDescriptionElt(item) {
+    const divElt = document.createElement("div");
+    divElt.classList.add("cart__item__content__description");
+  
+    const titleElt = document.createElement("h2");
+    titleElt.innerText = item.name;
+    const colorElt = document.createElement("p");
+    colorElt.innerText = item.color;
+    const priceElt = document.createElement("p");
+    priceElt.innerText = item.price;
+  
+    divElt.appendChild(titleElt);
+    divElt.appendChild(colorElt);
+    divElt.appendChild(priceElt);
+    return divElt
+  };
+  
+/**
+   * Fonction pour créer l'article dans le DOM
+   * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+   */
+  function makeArticleElt(item) {
+    const article = document.createElement("article");
+    article.classList.add("cart__item");
+    article.dataset.id = item.id;
+    article.dataset.color = item.color;
+    return article
+  };
+  
+/**
+   * Fonction pour créer la div class"cart__item__img" dans le DOM
+   * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+   */
+  function makeDivImgElt(item) {
+    const divElt = document.createElement("div");
+    divElt.classList.add("cart__item__img");
+    const imgElt = document.createElement("img");
+    imgElt.src = item.imageUrl;
+    imgElt.alt = item.altTxt;
+    divElt.appendChild(imgElt);
+    return divElt
+  };
 
+/**
+ * Fonction afficher les éléments de chaques article dans le panier
+ * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ */
+function makeDivDeleteElt(divSettingsElt, item) {
+    const divDeleteElt = document.createElement("div");
+    divDeleteElt.classList.add("cart__item__content__settings__delete");
+  
+    const deleteItemElt = document.createElement("p");
+    deleteItemElt.classList.add("deleteItem");
+    deleteItemElt.innerText = "Supprimer";
+    deleteItemElt.addEventListener('click', () => removeItemFromCart(item));
+    
+    divDeleteElt.appendChild(deleteItemElt);
+    divSettingsElt.appendChild(divDeleteElt);
+  };
+  
+/**
+   * Fonction afficher les éléments de chaques article dans le panier
+   * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+   */
+  function makeDivQuantityElt(divSettingsElt, item) {
+    const divQuantityElt = document.createElement("div");
+    divQuantityElt.classList.add("cart__item__content__settings__quantity");
+  
+    const quantityElt = document.createElement("p");
+    quantityElt.innerText = "Qté : ";
+  
+    const inputQuantityElt = document.createElement("input");
+    inputQuantityElt.classList.add("itemQuantity");
+    inputQuantityElt.type = "number";
+    inputQuantityElt.name = "itemQuantity";
+    inputQuantityElt.min = 1;
+    inputQuantityElt.max = 100;
+    inputQuantityElt.value = Number(item.quantity);
+    inputQuantityElt.addEventListener('input', () => updateQuantityAndPrice(item.id, inputQuantityElt.value, item));
+    
+    divQuantityElt.appendChild(quantityElt);
+    divQuantityElt.appendChild(inputQuantityElt);
+    divSettingsElt.appendChild(divQuantityElt);
+  }
+  
 /**
  * Fonction afficher les éléments de chaques article dans le panier
  * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
 function displayArticleElt(item) {
 
-        // Création de la balise article class= "cart__item"
-        let articleElt = document.createElement("article");
-        articleElt.classList.add("cart__item");
-        articleElt.dataset.id = item.id;
-        articleElt.dataset.color = item.color;
-        const sectionElt = document.getElementById("cart__items")
-        sectionElt.appendChild(articleElt);    // <= On l'ajoute en tant qu'enfant à la section id="cart__items"
+  const articleElt = makeArticleElt(item);
+  sectionCartElt.appendChild(articleElt);
 
-        // Création de la div class= "cart__item__img"
-        let divImgElt = document.createElement("div");
-        divImgElt.classList.add("cart__item__img");
-        articleElt.appendChild(divImgElt); 
+  const divImageElt = makeDivImgElt(item);
+  articleElt.appendChild(divImageElt);
 
-        //Création de l'image du produit
-        let imgElt = document.createElement("img");
-        imgElt.src = item.imageUrl
-        imgElt.alt = item.altTxt
-        divImgElt.appendChild(imgElt);
+  const divContentElt = makeDivContentElt(item); 
+  articleElt.appendChild(divContentElt);
 
-        // Création de la div class= "cart__item__content"
-        let divContentElt = document.createElement("div");
-        divContentElt.classList.add("cart__item__content");
-        articleElt.appendChild(divContentElt);
+  totalItemsInCart();
+  totalCartPrice();
+};
 
-        // Création de la div class="cart__item__content__description"
-        let divDescriptionElt = document.createElement("div");
-        divDescriptionElt.classList.add("cart__item__content__description");
-        divContentElt.appendChild(divDescriptionElt);
+/**
+ * Fonction afficher les éléments de chaques article dans le panier
+ * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ */
+function makeDivContentElt(item) {
+  const divContentElt = document.createElement("div");
+  divContentElt.classList.add("cart__item__content");
+  const divDescriptionElt = makeDivDescriptionElt(item);
+  const divSettingsElt = makeDivSettingsElt(item);
 
-        // Création du titre <h2> pour le nom de l'article            
-        let productTitleElt = document.createElement("h2");
-        productTitleElt.innerText = item.name;
-        divDescriptionElt.appendChild(productTitleElt);
+  divContentElt.appendChild(divDescriptionElt);
+  divContentElt.appendChild(divSettingsElt);
+  return divContentElt
+};
 
-        // Création de la balise <p> pour la couleur de l'article           
-        let colorProductElt = document.createElement("p");
-        colorProductElt.innerText = item.color; 
-        divDescriptionElt.appendChild(colorProductElt);
+/**
+ * Fonction afficher les éléments de chaques article dans le panier
+ * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ */
+function makeDivSettingsElt(item) {
+  const divSettingsElt = document.createElement("div");
+  divSettingsElt.classList.add("cart__item__content__settings");
 
-        // Création de la balise <p> pour le prix de l'article          
-        let priceProductElt = document.createElement("p");
-        priceProductElt.innerText = item.price + "€";
-        divDescriptionElt.appendChild(priceProductElt);
-
-        // Création de la div class="cart__item__content__settings"
-        let divSettingsElt = document.createElement("div");
-        divSettingsElt.classList.add("cart__item__content__settings");
-        divContentElt.appendChild(divSettingsElt);
-
-        // Création de la div class="cart__item__content__settings__quantity"
-        let divQuantityElt = document.createElement("div");
-        divQuantityElt.classList.add("cart__item__content__settings__quantity");
-        divSettingsElt.appendChild(divQuantityElt);
-
-        // Création de la balise <p> pour la quantité de l'article
-        let quantityProductElt = document.createElement("p");
-        quantityProductElt.innerText = "Qté : ";
-        divQuantityElt.appendChild(quantityProductElt);
-
-        // Création de l'input permettant de modifier la quantité de l'article dans le panier
-        let inputQuantityElt = document.createElement("input");
-        inputQuantityElt.classList.add("itemQuantity");
-        inputQuantityElt.type = "number";
-        inputQuantityElt.name = "itemQuantity";
-        inputQuantityElt.min = 1;
-        inputQuantityElt.max = 100;
-        inputQuantityElt.value = Number(item.quantity);
-        divQuantityElt.appendChild(inputQuantityElt);
-        inputQuantityElt.addEventListener('input', () => updateQuantityAndPrice(item.id, inputQuantityElt.value, item))
-
-        // Création de la div class="cart__item__content__settings__delete" pour supprimer l'article du panier
-        let divDeleteElt = document.createElement("div");
-        divDeleteElt.classList.add("cart__item__content__settings__delete");
-        divSettingsElt.appendChild(divDeleteElt);
-
-        // Création de la balise <p> class="deleteItem"
-        let deleteItemElt = document.createElement("p");
-        deleteItemElt.classList.add("deleteItem");
-        deleteItemElt.innerText = "Supprimer";
-        divDeleteElt.appendChild(deleteItemElt);
-        deleteItemElt.addEventListener('click', () => removeItemFromCart(item));
-        totalItemsInCart();
-        totalCartPrice();
+  makeDivQuantityElt(divSettingsElt, item);
+  makeDivDeleteElt(divSettingsElt, item);
+  return divSettingsElt
 };
 
 retrieveLocalStorageItems(); // On apelle la fonction
