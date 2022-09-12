@@ -3,7 +3,7 @@ function getArticle () {
     fetch('http://localhost:3000/api/products')
     .then( response => {
         if(response.ok) {
-            return response.json()
+            return response.json();
         }
     })
     // Fonction pour afficher les données reçues dynamiquement dans la page d'accueil
@@ -21,7 +21,7 @@ function getArticle () {
             </a>`
         }
     })
-    .catch(error => console.log("Une erreur est survenue"))
+    .catch(error => console.log(error))
     
 }
 getArticle();
