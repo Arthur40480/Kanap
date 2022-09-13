@@ -151,11 +151,12 @@ btnOrderElt.addEventListener('click', (e) => submitForm(e))
 // Fonction pour récupérer les items du localstorage pour les mettres dans le panier
 function retrieveLocalStorageItems() {
     const numberOfItems = localStorage.length;
-    for( x = 0; x < numberOfItems; x++) {
+    for( x = 0; x < numberOfItems; x++)  {
+        console.log(localStorage.key(x));
         const item = localStorage.getItem(localStorage.key(x))
         const itemObject = JSON.parse(item)
         cart.push(itemObject)
-    }
+    }console.log(cart);
 };
 
 //Fonction pour calculer le nombre total d'article dans le panier
@@ -189,8 +190,10 @@ function totalCartPrice() {
  function updateQuantityAndPrice(id, updateQuantity, item) {
     const itemToUpdate = cart.find(item => item.id === id);
     itemToUpdate.quantity = Number(updateQuantity);
+    item.quantity = itemToUpdate.quantity;
     const newItemToSave = JSON.stringify(item);
-    localStorage.setItem(item.id, newItemToSave);
+    const orderKey = `${item.id}-${item.color}`;
+    localStorage.setItem(orderKey, newItemToSave);
     totalItemsInCart(); // => On rapelle les deux fonction pour pouvoir recalculer le prix et la quantité total lors de l'evènement
     totalCartPrice();
     };
@@ -200,25 +203,31 @@ function totalCartPrice() {
  * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article
  */
 function removeItemFromLocalStorageAndDom(item) {
-    localStorage.removeItem(item.id)
     const itemArticleToDeleteElt = document.querySelector(
-        `article[data-id="${item.id}"]`)
-        console.log("Deleting article", itemArticleToDeleteElt)
-        itemArticleToDeleteElt.remove()
+        `article[data-id="${item.id}"][data-color="${item.color}"]`);
+        console.log("Deleting article", itemArticleToDeleteElt);
+        itemArticleToDeleteElt.remove();
         alert("Votre produit a bien été supprimé du panier !");
 };
+
+function removeItemFromLocalStorage(item) {
+    const orderKey = `${item.id}-${item.color}`;
+    localStorage.removeItem(orderKey);
+}
 
 /**
  * Fonction pour supprimer un élément du panier => cart[]
  * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article
  */
 function removeItemFromCart(item) {
-    const itemToDelete = cart.find(product => product.id === item.id)
+    const itemToDelete = cart.find((product) => product.id === item.id && product.color === item.color)
+    console.log(itemToDelete);
     /**Utilisation de la méthode ".splice( 0(indice à partir duquel commencer à changer le tableau), nbASupprimer, élem1 à ajouter, etc ...)"
      * Elle modifie le contenu d'un  tableau en retirant et/ou ajoutant de nouveaux éléments. */
     const itemToDeleteFromCart = cart.splice(itemToDelete, 1)
     totalCartPrice(); // => On rapelle les deux fonction pour pouvoir recalculer le prix et la quantité total lors de l'evènement
     totalItemsInCart();
+    removeItemFromLocalStorage(item);
     removeItemFromLocalStorageAndDom(item);
 };
 
