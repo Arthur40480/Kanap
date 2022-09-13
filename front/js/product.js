@@ -79,7 +79,9 @@ fetch(`http://localhost:3000/api/products/${idItem}`)
                 description: product.description,
                 altTxt: product.altTxt
             }
-            localStorage.setItem(idItem, JSON.stringify(order))
+            let orderKey = `${idItem}-${colorProductElt.value}`
+            console.log(orderKey)
+            localStorage.setItem(orderKey, JSON.stringify(order))
         }
 
         
