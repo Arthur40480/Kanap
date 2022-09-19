@@ -202,7 +202,7 @@ function totalCartPrice() {
  * Fonction pour supprimer l'élément du LocalStorage ainsi que sont "article" dans le DOM
  * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article
  */
-function removeItemFromLocalStorageAndDom(item) {
+function removeItemFromDom(item) {
     const itemArticleToDeleteElt = document.querySelector(
         `article[data-id="${item.id}"][data-color="${item.color}"]`);
         console.log("Deleting article", itemArticleToDeleteElt);
@@ -228,7 +228,7 @@ function removeItemFromCart(item) {
     totalCartPrice(); // => On rapelle les deux fonction pour pouvoir recalculer le prix et la quantité total lors de l'evènement
     totalItemsInCart();
     removeItemFromLocalStorage(item);
-    removeItemFromLocalStorageAndDom(item);
+    removeItemFromDom(item);
 };
 
 /**
@@ -244,7 +244,7 @@ function removeItemFromCart(item) {
     const colorElt = document.createElement("p");
     colorElt.innerText = item.color;
     const priceElt = document.createElement("p");
-    priceElt.innerText = item.price;
+    priceElt.innerText = item.price + " €";
   
     divElt.appendChild(titleElt);
     divElt.appendChild(colorElt);
