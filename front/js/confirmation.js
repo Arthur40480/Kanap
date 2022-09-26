@@ -1,6 +1,5 @@
-//Fonction pour récupérer et afficher le numéro de commande
 function getIdCommand() {
-    const urlParams = new URLSearchParams(window.location.search);
-    orderId.innerText = urlParams.get("_id");
-  }
-  getIdCommand();
+  const URL_PARAMS = new URLSearchParams(window.location.search);
+  orderId.innerText = URL_PARAMS.get("_id");
+}
+getIdCommand();

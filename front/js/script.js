@@ -8,8 +8,8 @@ function getArticle () {
     })
     // Fonction pour afficher les données reçues dynamiquement dans la page d'accueil
     .then(function (productArticle) {
-        const nbArticle = productArticle.length
-        for(let x = 0; x < nbArticle; x += 1) {
+        const NB_ARTICLE = productArticle.length
+        for(let x = 0; x < NB_ARTICLE; x += 1) {
             const items = document.getElementById('items')
             items.innerHTML +=
             `<a href="./product.html?id=${productArticle[x]._id}">
