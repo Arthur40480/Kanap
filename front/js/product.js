@@ -18,27 +18,33 @@ function redirectToCart() {
 
 /**
  * Fonction pour sauvegarder le panier dans le localStorage
- * @param {*Object} product 
+ * @param {object} product 
  */
-function saveOrder(product) {
-    let order = {
-        id: product._id,
-        name: product.name,
-        color: COLOR_PRODUCT_ELT.value,
-        price: product.price,
-        quantity: Number(QUANTITY_PRODUCT_ELT.value),
-        imageUrl: product.imageUrl,
-        description: product.description,
-        altTxt: product.altTxt
-    }
+ function saveOrder(product) {
     let orderKey = `${ID_ITEM}-${COLOR_PRODUCT_ELT.value}`
-    localStorage.setItem(orderKey, JSON.stringify(order))
+    let order = localStorage.getItem(orderKey)
+    if( order == null ){
+        localStorage.setItem(orderKey, JSON.stringify({
+            id: product._id,
+            name: product.name,
+            color: COLOR_PRODUCT_ELT.value,
+            price: product.price,
+            quantity: Number(QUANTITY_PRODUCT_ELT.value),
+            imageUrl: product.imageUrl,
+            description: product.description,
+            altTxt: product.altTxt
+        }))
+        return
+    }
+    let orderUpdate = JSON.parse(order)
+    orderUpdate.quantity = orderUpdate.quantity + Number(QUANTITY_PRODUCT_ELT.value);
+    localStorage.setItem(orderKey, JSON.stringify(orderUpdate))   
 };
 
 /**
  * //Fonction pour que le client valide un panier correct
- * @param {*string} color 
- * @param {*Number.value} quantity 
+ * @param {string} color 
+ * @param {number} quantity 
  * @returns true => Si jamais les conditions sont respectées, la fonction retourne la valeur true
   */
  function invalidOrder(color, quantity) {
@@ -56,7 +62,7 @@ function saveOrder(product) {
 
 /**
  * Fonction permettant d'ajouter le choix des couleurs pour chaques items
- * @param {*Object} product 
+ * @param {object} product 
  */
 function getColors(product) {
     for( let color of product.colors) {
@@ -69,7 +75,7 @@ function getColors(product) {
 
 /**
  * Fonction pour ajouter les éléments de manière dynamique dans le HTML
- * @param {*Object} product 
+ * @param {object} product 
  */
 function displayProduct(product) {
     IMG_PRODUCT_ELT.innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}"></img>`;
@@ -79,16 +85,13 @@ function displayProduct(product) {
     getColors(product); // On apelle la fonction getColors pour l'ajouter dans le DOM
 }
 
-//Fonction pour récupérer les données des produits et les utiliser ddans la fonction displayProduct que l'on apelle
+//Fonction pour récupérer les données des produits et les utiliser dans la fonction displayProduct que l'on apelle
 function recoverDataProduct() {
 fetch(`http://localhost:3000/api/products/${ID_ITEM}`)
     .then(response => response.json())
     .then((product) => displayProduct(product)) 
     .catch((error) => console.log(error)) 
 };
-
-// On appelle la fonction
-recoverDataProduct();
 
 //Fonction pour l'événement.
 function validItemInCart() {
@@ -110,6 +113,9 @@ function validItemInCart() {
 function EventBtnAddToCart() {
 BTN_AD_TO_CART_ELT.addEventListener('click', validItemInCart);
 };
+
+// On appelle la fonction
+recoverDataProduct();
 
 // On appelle la fonction
 EventBtnAddToCart();
