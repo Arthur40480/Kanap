@@ -1,5 +1,5 @@
 //Création de l'array (tableau) qui représente le contenue du panier actuel NUMBER_OF_ITEMS
-const CART = [];
+const cart = [];
 
 //Création des constantes pour les données saisies dans le formulaire
 const INPUT_NAME_ELT = document.getElementById("firstName");
@@ -26,25 +26,24 @@ let texteRegExp = new RegExp("^[a-zA-Z ,.'-]+$");
 function retrieveLocalStorageItems() {
     const NUMBER_OF_ITEMS = localStorage.length;
     for( x = 0; x < NUMBER_OF_ITEMS; x++)  {
-        console.log(localStorage.key(x));
         const ITEM = localStorage.getItem(localStorage.key(x))
-        const ITEM_OBJECT = JSON.parse(ITEM)
-        CART.push(ITEM_OBJECT)
-    }console.log(CART);
+        const item_object = JSON.parse(ITEM)
+        console.log(item_object)
+        cart.push(item_object)
+        console.log(cart)
+    }console.log(cart);
 };
-
-retrieveLocalStorageItems(); // On apelle la fonction
 
 //Fonction permettant de récupérer l'ID des produits séléctionner
 function getIdsFromCache() {
     const NUMBER_OF_PRODUCTS = localStorage.length
-    const IDS_ORDER = []
+    const idsOrder = []
     for (let i = 0; i < NUMBER_OF_PRODUCTS; i++) {
       const KEY = localStorage.key(i)
       const ID = KEY.split("-")[0]
-      IDS_ORDER.push(ID);
+      idsOrder.push(ID);
     }
-    return IDS_ORDER
+    return idsOrder
 };
 
 //Fonction pour la validation du champ prénom
@@ -142,7 +141,6 @@ function orderRequest() {
     })
         .then((res) => res.json())
         .then((data) => {
-            console.log(data)
             localStorage.clear()
             document.location.href = `confirmation.html?_id=${data.orderId}`
         })
@@ -151,7 +149,7 @@ function orderRequest() {
 //Création de la fonction pour utiliser la méthode POST et envoyer les données des clients au serveur
 function submitForm(e) {
     e.preventDefault()
-    if(CART.length === 0) { 
+    if(cart.length === 0) { 
         alert(" Veuillez remplir votre panier car celui-ci est vide !")
         return
     }else if(formValid()) {
@@ -169,7 +167,7 @@ function totalItemsInCart() {
     
     /**.reduce fonction "accumulatrice" => pour traiter chaques valeurs d'une liste afin de le réduire à une seule.
     cart.reduce((previousValue, currentValue))*/ 
-    const TOTAL_QUANTITY = CART.reduce((total, item) => total + item.quantity, itemQuantity)
+    const TOTAL_QUANTITY = cart.reduce((total, item) => total + item.quantity, itemQuantity)
     TOTAL_ITEMS_IN_CART_ELT.textContent = TOTAL_QUANTITY   
 };
 
@@ -177,7 +175,7 @@ function totalItemsInCart() {
 function totalCartPrice() {
     let total = 0
     const TOTAL_PRICE_ELT = document.getElementById("totalPrice");
-    CART.forEach((item) => {        //Fonction pour chaques objet d'un tableau
+    cart.forEach((item) => {        //Fonction pour chaques objet d'un tableau
         const ITEM_PRICE = item.price * item.quantity
         total += ITEM_PRICE
     })
@@ -186,12 +184,12 @@ function totalCartPrice() {
 
 /**
  * Fonction permettant la mise à jour du prix total et de la quantité total lors de l'evènement
- * @param {*string} id  => Ici on viens chercher l'id de l'item à qui l'on veut modifier la quantité
- * @param {*number.value} updateQuantity => Ici on viens récupérer la valeur de l'input "inputQuantityElt" qui est un nombre
- * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ * @param {string} id  => Ici on viens chercher l'id de l'item à qui l'on veut modifier la quantité
+ * @param {number} updateQuantity => Ici on viens récupérer la valeur de l'input "inputQuantityElt" qui est un nombre
+ * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
  function updateQuantityAndPrice(id, updateQuantity, item) {
-    const ITEM_TO_UPDATE = CART.find(item => item.id === id);
+    const ITEM_TO_UPDATE = cart.find(item => item.id === id);
     ITEM_TO_UPDATE.quantity = Number(updateQuantity);
     item.quantity = ITEM_TO_UPDATE.quantity;
     const NEW_ITEM_TO_SAVE = JSON.stringify(item);
@@ -220,17 +218,17 @@ function removeArticleFromDom(item) {
 function removeItemFromLocalStorage(item) {
     const ORDER_KEY = `${item.id}-${item.color}`;
     localStorage.removeItem(ORDER_KEY);
-}
+};
 
 /**
  * Fonction pour supprimer un élément du panier => cart[]
- * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article
+ * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article
  */
 function removeItemFromCart(item) {
-    const ITEM_TO_DELETE = CART.find((product) => product.id === item.id && product.color === item.color)
+    const ITEM_TO_DELETE = cart.find((product) => product.id === item.id && product.color === item.color)
     /**Utilisation de la méthode ".splice( 0(indice à partir duquel commencer à changer le tableau), nbASupprimer, élem1 à ajouter, etc ...)"
      * Elle modifie le contenu d'un  tableau en retirant et/ou ajoutant de nouveaux éléments. */
-    const ITEM_TO_DELETE_FROM_CART = CART.splice(ITEM_TO_DELETE, 1)
+    const ITEM_TO_DELETE_FROM_CART = cart.splice(ITEM_TO_DELETE, 1)
     totalCartPrice(); // => On rapelle les deux fonction pour pouvoir recalculer le prix et la quantité total lors de l'evènement
     totalItemsInCart();
     removeItemFromLocalStorage(item);
@@ -239,7 +237,7 @@ function removeItemFromCart(item) {
 
 /**
  * Fonction afficher les éléments de chaques article dans le panier
- * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
  function makeDivDescriptionElt(item) {
     const DIV_ELT = document.createElement("div");
@@ -260,7 +258,7 @@ function removeItemFromCart(item) {
   
 /**
    * Fonction pour créer l'article dans le DOM
-   * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+   * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
    */
   function makeArticleElt(item) {
     const ARTICLE = document.createElement("article");
@@ -272,7 +270,7 @@ function removeItemFromCart(item) {
   
 /**
    * Fonction pour créer la div class"cart__item__img" dans le DOM
-   * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+   * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
    */
   function makeDivImgElt(item) {
     const DIV_ELT = document.createElement("div");
@@ -286,7 +284,7 @@ function removeItemFromCart(item) {
 
 /**
  * Fonction afficher les éléments de chaques article dans le panier
- * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
 function makeDivDeleteElt(DIV_SETTINGS_ELT, item) {
     const DIV_DELETE_ELT = document.createElement("div");
@@ -303,7 +301,7 @@ function makeDivDeleteElt(DIV_SETTINGS_ELT, item) {
   
 /**
    * Fonction afficher les éléments de chaques article dans le panier
-   * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+   * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
    */
   function makeDivQuantityElt(DIV_SETTINGS_ELT, item) {
     const DELETE_ITEM_ELT = document.createElement("div");
@@ -328,7 +326,7 @@ function makeDivDeleteElt(DIV_SETTINGS_ELT, item) {
   
 /**
  * Fonction afficher les éléments de chaques article dans le panier
- * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
 function makeDivSettingsElt(item) {
     const DIV_SETTINGS_ELT = document.createElement("div");
@@ -341,7 +339,7 @@ function makeDivSettingsElt(item) {
 
 /**
  * Fonction afficher les éléments de chaques article dans le panier
- * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
 function makeDivContentElt(item) {
     const DIV_CONTENT_ELT = document.createElement("div");
@@ -356,7 +354,7 @@ function makeDivContentElt(item) {
 
 /**
  * Fonction afficher les éléments de chaques article dans le panier
- * @param {*object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
+ * @param {object} item => Ici on récupère "item" qui est un objet avec toutes les données relative à l'article 
  */
 function displayArticleElt(item) {
 
@@ -376,6 +374,9 @@ function displayArticleElt(item) {
 /**Fonction utilisant la méthode .forEach pour permettre d'exécuter
  * la fonction displayArticleElt sur chaque élément du tableau => chaque "item" de mon tableau "cart" (panier) */
 function displayArticleEltForEachItemInCart() {
-    CART.forEach((item) => displayArticleElt(item));
+    cart.forEach((item) => displayArticleElt(item));
 }
+
+retrieveLocalStorageItems(); 
+
 displayArticleEltForEachItemInCart();
